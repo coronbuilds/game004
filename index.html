@@ -1,299 +1,454 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
+
 <meta charset="UTF-8">
 
 <meta name="viewport"
       content="width=device-width,
                initial-scale=1,
                maximum-scale=1,
-               user-scalable=no">
+               minimum-scale=1,
+               user-scalable=no,
+               viewport-fit=cover">
+
+<meta name="format-detection" content="telephone=no">
 
 <title>SNAKE PUZZLE</title>
 
 <style>
+
+/* =====================================================
+   iPhone操作対策
+   ===================================================== */
+
 * {
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
+
+    -webkit-user-select: none;
     user-select: none;
+
+    -webkit-touch-callout: none;
+
+    -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
+html,
+body {
+
     margin: 0;
     padding: 0;
+
     width: 100%;
-    min-height: 100%;
-    background: #111;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: #101010;
+
     color: white;
+
     font-family:
         -apple-system,
         BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
-    overflow: hidden;
+
+    touch-action: none;
+
+    overscroll-behavior: none;
+
+    -webkit-text-size-adjust: 100%;
 }
 
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+
+/* =====================================================
+   GAME
+   ===================================================== */
 
 #game {
-    width: min(100vw, 520px);
-    min-height: 100vh;
-    padding: 18px 14px;
+
+    width: 100%;
+    max-width: 520px;
+
+    height: 100dvh;
+
+    margin: 0 auto;
+
+    padding:
+        max(14px, env(safe-area-inset-top))
+        14px
+        max(14px, env(safe-area-inset-bottom))
+        14px;
+
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
-}
 
-/* ---------- HEADER ---------- */
-
-.header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-.title {
-    font-size: 27px;
-    font-weight: 900;
-    letter-spacing: 2px;
-}
-
-.level {
-    font-size: 14px;
-    font-weight: 700;
-    background: #222;
-    border: 1px solid #333;
-    padding: 7px 11px;
-    border-radius: 10px;
-}
-
-/* ---------- INFO ---------- */
-
-.info {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    color: #aaa;
-    font-size: 13px;
-}
-
-.info strong {
-    color: white;
-}
-
-/* ---------- BOARD ---------- */
-
-#board {
-    width: min(94vw, 480px);
-    aspect-ratio: 1 / 1;
-
-    display: grid;
-
-    background: #191919;
-
-    border: 3px solid #303030;
-    border-radius: 18px;
-
-    padding: 5px;
-
-    box-shadow:
-        0 15px 40px rgba(0,0,0,.5);
+    overflow: hidden;
 
     touch-action: none;
 }
 
-.cell {
-    position: relative;
 
-    border-radius: 7px;
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.header {
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 8px;
+}
+
+.title {
+
+    font-size: 24px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+}
+
+.level {
 
     background: #222;
 
-    margin: 2px;
+    border: 1px solid #3a3a3a;
 
-    transition:
-        transform .12s ease,
-        background .12s ease;
+    border-radius: 10px;
+
+    padding: 7px 10px;
+
+    font-size: 13px;
+
+    font-weight: 800;
 }
 
-/* ---------- WALL ---------- */
 
-.wall {
-    background:
-        linear-gradient(
-            135deg,
-            #3b3b3b,
-            #272727
-        );
+/* =====================================================
+   INFO
+   ===================================================== */
 
-    box-shadow:
-        inset 0 2px 0 rgba(255,255,255,.04);
+.info {
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 8px;
+
+    font-size: 13px;
+
+    color: #999;
 }
 
-/* ---------- GOAL ---------- */
+.info strong {
 
-.goal {
-    background: #17351d;
+    color: white;
 }
 
-.goal::after {
-    content: "";
-    position: absolute;
 
-    width: 42%;
-    height: 42%;
+/* =====================================================
+   BOARD
+   ===================================================== */
 
-    left: 29%;
-    top: 29%;
+#board {
 
-    border-radius: 50%;
+    width: min(92vw, 480px);
 
-    background: #4cff78;
+    aspect-ratio: 1 / 1;
 
-    box-shadow:
-        0 0 12px rgba(76,255,120,.7);
-}
-
-/* ---------- SNAKE ---------- */
-
-.snake {
-    background: #28d94f;
-
-    box-shadow:
-        inset 0 2px 0 rgba(255,255,255,.25),
-        0 3px 8px rgba(0,0,0,.25);
-
-    z-index: 2;
-}
-
-.snake-head {
-    background: #55ff70;
-}
-
-.snake-head::before,
-.snake-head::after {
-    content: "";
-
-    position: absolute;
-
-    width: 18%;
-    height: 18%;
-
-    background: #111;
-
-    border-radius: 50%;
-
-    top: 27%;
-}
-
-.snake-head::before {
-    left: 23%;
-}
-
-.snake-head::after {
-    right: 23%;
-}
-
-/* ---------- CONTROLS ---------- */
-
-.controls {
-    margin-top: 16px;
+    flex-shrink: 0;
 
     display: grid;
 
     grid-template-columns:
-        72px 72px 72px;
+        repeat(8, 1fr);
 
     grid-template-rows:
-        58px 58px;
+        repeat(8, 1fr);
 
-    gap: 8px;
+    gap: 4px;
+
+    padding: 6px;
+
+    background: #292929;
+
+    border:
+        3px solid #3d3d3d;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.55);
+
+    touch-action: none;
+
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+
+/* =====================================================
+   CELL
+   ===================================================== */
+
+.cell {
+
+    min-width: 0;
+    min-height: 0;
+
+    position: relative;
+
+    border-radius: 7px;
+
+    background: #181818;
+
+    touch-action: none;
+}
+
+
+/* =====================================================
+   WALL
+   ===================================================== */
+
+.wall {
+
+    background:
+        linear-gradient(
+            135deg,
+            #4a4a4a,
+            #292929
+        );
+
+    box-shadow:
+        inset 0 2px 2px rgba(255,255,255,.08);
+}
+
+
+/* =====================================================
+   GOAL
+   ===================================================== */
+
+.goal {
+
+    background: #16331c;
+}
+
+.goal::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 48%;
+    height: 48%;
+
+    left: 26%;
+    top: 26%;
+
+    border-radius: 50%;
+
+    background: #52ff72;
+
+    box-shadow:
+        0 0 14px rgba(82,255,114,.8);
+}
+
+
+/* =====================================================
+   SNAKE
+   ===================================================== */
+
+.snake {
+
+    background: #27d94d;
+
+    box-shadow:
+        inset 0 2px 0 rgba(255,255,255,.2),
+        0 3px 6px rgba(0,0,0,.3);
+
+    z-index: 5;
+}
+
+.snake-head {
+
+    background: #63ff7b;
+
+}
+
+
+/* 目 */
+
+.snake-head::before,
+.snake-head::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 17%;
+    height: 17%;
+
+    top: 27%;
+
+    background: #111;
+
+    border-radius: 50%;
+}
+
+.snake-head::before {
+
+    left: 22%;
+}
+
+.snake-head::after {
+
+    right: 22%;
+}
+
+
+/* =====================================================
+   CONTROLS
+   ===================================================== */
+
+.controls {
+
+    display: grid;
+
+    grid-template-columns:
+        68px 68px 68px;
+
+    grid-template-rows:
+        55px 55px;
+
+    gap: 7px;
+
+    margin-top: 12px;
+
+    touch-action: none;
 }
 
 .control {
-    border: none;
 
-    border-radius: 16px;
+    border: 0;
 
-    background: #262626;
+    border-radius: 15px;
+
+    background: #292929;
 
     color: white;
 
-    font-size: 26px;
+    font-size: 25px;
 
     font-weight: 900;
 
     box-shadow:
-        0 5px 0 #151515;
+        0 4px 0 #151515;
 
     touch-action: manipulation;
+
+    -webkit-touch-callout: none;
+
+    -webkit-user-select: none;
+    user-select: none;
+
+    outline: none;
 }
 
 .control:active {
-    transform: translateY(4px);
+
+    transform:
+        translateY(3px);
 
     box-shadow:
         0 1px 0 #151515;
 }
 
 .up {
+
     grid-column: 2;
     grid-row: 1;
 }
 
 .left {
+
     grid-column: 1;
     grid-row: 2;
 }
 
 .down {
+
     grid-column: 2;
     grid-row: 2;
 }
 
 .right {
+
     grid-column: 3;
     grid-row: 2;
 }
 
-/* ---------- BUTTONS ---------- */
 
-.buttons {
+/* =====================================================
+   ACTION BUTTONS
+   ===================================================== */
+
+.actions {
+
     display: flex;
 
-    gap: 10px;
+    gap: 8px;
 
-    margin-top: 15px;
+    margin-top: 12px;
 }
 
 .action {
-    border: 1px solid #333;
 
-    background: #1d1d1d;
+    border:
+        1px solid #3a3a3a;
+
+    background: #202020;
 
     color: white;
 
-    padding: 11px 18px;
+    padding:
+        10px 15px;
 
-    border-radius: 12px;
+    border-radius: 11px;
+
+    font-size: 13px;
 
     font-weight: 800;
+
+    touch-action: manipulation;
+
+    -webkit-touch-callout: none;
+
+    -webkit-user-select: none;
+    user-select: none;
 }
 
-.action:active {
-    transform: scale(.96);
-}
 
-/* ---------- MESSAGE ---------- */
+/* =====================================================
+   CLEAR SCREEN
+   ===================================================== */
 
-#message {
+#clearScreen {
+
     position: fixed;
 
     inset: 0;
@@ -301,25 +456,29 @@ body {
     display: none;
 
     align-items: center;
+
     justify-content: center;
 
     background:
-        rgba(0,0,0,.72);
+        rgba(0,0,0,.78);
 
     z-index: 100;
+
+    touch-action: none;
 }
 
 .modal {
-    width: min(88vw, 350px);
 
-    background: #1b1b1b;
-
-    border:
-        1px solid #3a3a3a;
-
-    border-radius: 24px;
+    width: min(85vw, 340px);
 
     padding: 28px;
+
+    background: #1c1c1c;
+
+    border:
+        1px solid #414141;
+
+    border-radius: 22px;
 
     text-align: center;
 
@@ -328,67 +487,91 @@ body {
 }
 
 .modal h2 {
-    margin: 0 0 10px;
+
+    margin: 0 0 8px;
 
     font-size: 30px;
 }
 
 .modal p {
-    color: #aaa;
 
-    margin-bottom: 22px;
+    margin: 0 0 20px;
+
+    color: #aaa;
 }
 
 .next {
+
     width: 100%;
 
-    border: none;
+    border: 0;
 
-    background: #42e85f;
-
-    color: #071209;
-
-    font-size: 17px;
-
-    font-weight: 900;
+    border-radius: 13px;
 
     padding: 14px;
 
-    border-radius: 13px;
+    background: #48e965;
+
+    color: #071009;
+
+    font-size: 16px;
+
+    font-weight: 900;
+
+    touch-action: manipulation;
 }
 
-/* ---------- SMALL SCREEN ---------- */
+
+/* =====================================================
+   SMALL SCREEN
+   ===================================================== */
 
 @media (max-height: 700px) {
 
     #game {
-        padding-top: 8px;
+
+        padding-top: 7px;
     }
 
     .title {
-        font-size: 23px;
+
+        font-size: 20px;
+    }
+
+    #board {
+
+        width: min(88vw, 400px);
     }
 
     .controls {
-        margin-top: 8px;
 
         grid-template-columns:
-            62px 62px 62px;
+            58px 58px 58px;
 
         grid-template-rows:
-            48px 48px;
+            45px 45px;
+
+        margin-top: 7px;
     }
 
-    .buttons {
-        margin-top: 8px;
+    .actions {
+
+        margin-top: 7px;
     }
 }
+
 </style>
+
 </head>
+
 
 <body>
 
+
 <div id="game">
+
+
+    <!-- HEADER -->
 
     <div class="header">
 
@@ -397,88 +580,106 @@ body {
         </div>
 
         <div class="level">
-            LEVEL <span id="level">1</span>
+
+            LEVEL
+            <span id="level">1</span>
+
         </div>
 
     </div>
 
+
+    <!-- INFO -->
+
     <div class="info">
 
         <div>
-            MOVES:
+            MOVES
             <strong id="moves">0</strong>
         </div>
 
         <div>
-            BEST:
+            BEST
             <strong id="best">—</strong>
         </div>
 
     </div>
 
+
+    <!-- BOARD -->
+
     <div id="board"></div>
+
+
+    <!-- CONTROLS -->
 
     <div class="controls">
 
         <button
             class="control up"
-            onclick="move(0,-1)">
+            id="up">
             ▲
         </button>
 
         <button
             class="control left"
-            onclick="move(-1,0)">
+            id="left">
             ◀
         </button>
 
         <button
             class="control down"
-            onclick="move(0,1)">
+            id="down">
             ▼
         </button>
 
         <button
             class="control right"
-            onclick="move(1,0)">
+            id="right">
             ▶
         </button>
 
     </div>
 
-    <div class="buttons">
+
+    <!-- ACTIONS -->
+
+    <div class="actions">
 
         <button
             class="action"
-            onclick="restart()">
+            id="restart">
             ↻ リセット
         </button>
 
         <button
             class="action"
-            onclick="newGame()">
+            id="next">
             次のステージ
         </button>
 
     </div>
 
+
 </div>
 
 
-<div id="message">
+<!-- CLEAR -->
+
+<div id="clearScreen">
 
     <div class="modal">
 
         <h2>🎉 CLEAR!</h2>
 
         <p>
-            <span id="clearMoves">0</span>
-            MOVES
+            MOVES:
+            <strong id="clearMoves">0</strong>
         </p>
 
         <button
             class="next"
-            onclick="newGame()">
+            id="nextLevel">
             NEXT LEVEL
         </button>
 
@@ -489,25 +690,131 @@ body {
 
 <script>
 
-/* =========================================================
-   SNAKE PUZZLE
-   ========================================================= */
+/* =====================================================
+   iPhone ブラウザ対策
+   ===================================================== */
 
-/* ---------- SETTINGS ---------- */
+
+/*
+   長押しメニューを禁止
+*/
+
+document.addEventListener(
+    "contextmenu",
+    function(e) {
+
+        e.preventDefault();
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+/*
+   テキスト選択を禁止
+*/
+
+document.addEventListener(
+    "selectstart",
+    function(e) {
+
+        e.preventDefault();
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+/*
+   ジェスチャーによるズームを禁止
+*/
+
+document.addEventListener(
+    "gesturestart",
+    function(e) {
+
+        e.preventDefault();
+
+    },
+    {
+        passive: false
+    }
+);
+
+document.addEventListener(
+    "gesturechange",
+    function(e) {
+
+        e.preventDefault();
+
+    },
+    {
+        passive: false
+    }
+);
+
+document.addEventListener(
+    "gestureend",
+    function(e) {
+
+        e.preventDefault();
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+/*
+   ダブルタップズーム防止
+*/
+
+let lastTouchTime = 0;
+
+document.addEventListener(
+    "touchend",
+    function(e) {
+
+        const now =
+            Date.now();
+
+        if (
+            now - lastTouchTime < 350
+        ) {
+
+            e.preventDefault();
+
+        }
+
+        lastTouchTime = now;
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+/* =====================================================
+   GAME
+   ===================================================== */
 
 const SIZE = 8;
 
 
-/* ---------- LEVEL DATA ---------- */
+/* =====================================================
+   STAGES
+   ===================================================== */
 
-/*
-    0 = empty
-    1 = wall
-*/
-
-const levels = [
+const stages = [
 
     {
+
         snake: [
             {x:1,y:6},
             {x:1,y:5},
@@ -520,6 +827,7 @@ const levels = [
         },
 
         walls: [
+
             [3,0],
             [3,1],
             [3,2],
@@ -532,10 +840,14 @@ const levels = [
             [2,6],
             [3,6],
             [4,6]
+
         ]
+
     },
 
+
     {
+
         snake: [
             {x:1,y:1},
             {x:2,y:1},
@@ -548,6 +860,7 @@ const levels = [
         },
 
         walls: [
+
             [0,3],
             [1,3],
             [2,3],
@@ -561,14 +874,18 @@ const levels = [
             [7,4],
 
             [2,6]
+
         ]
+
     },
 
+
     {
+
         snake: [
             {x:6,y:6},
             {x:6,y:5},
-            {x:6,y:4],
+            {x:6,y:4},
             {x:5,y:4}
         ],
 
@@ -578,6 +895,7 @@ const levels = [
         },
 
         walls: [
+
             [1,2],
             [2,2],
             [3,2],
@@ -590,10 +908,14 @@ const levels = [
             [3,5],
 
             [5,1]
+
         ]
+
     },
 
+
     {
+
         snake: [
             {x:1,y:6},
             {x:2,y:6},
@@ -607,6 +929,7 @@ const levels = [
         },
 
         walls: [
+
             [1,1],
             [2,1],
             [3,1],
@@ -620,10 +943,14 @@ const levels = [
 
             [3,3],
             [4,3]
+
         ]
+
     },
 
+
     {
+
         snake: [
             {x:6,y:1},
             {x:6,y:2},
@@ -637,6 +964,7 @@ const levels = [
         },
 
         walls: [
+
             [2,0],
             [2,1],
             [2,2],
@@ -650,87 +978,112 @@ const levels = [
             [5,6],
 
             [1,3]
+
         ]
+
     }
 
 ];
 
 
-/* ---------- GAME STATE ---------- */
+/* =====================================================
+   STATE
+   ===================================================== */
 
-let levelIndex = 0;
+let currentStage = 0;
 
 let snake = [];
 
-let goal = null;
+let goal = {};
 
 let walls = [];
 
 let moves = 0;
 
-let gameOver = false;
+let finished = false;
 
 
-/* ---------- DOM ---------- */
+/* =====================================================
+   DOM
+   ===================================================== */
 
 const board =
     document.getElementById("board");
 
-const levelText =
+const level =
     document.getElementById("level");
 
-const movesText =
+const movesElement =
     document.getElementById("moves");
 
-const bestText =
+const best =
     document.getElementById("best");
 
-const message =
-    document.getElementById("message");
+const clearScreen =
+    document.getElementById("clearScreen");
 
 const clearMoves =
     document.getElementById("clearMoves");
 
 
-/* ---------- LOAD LEVEL ---------- */
+/* =====================================================
+   LOAD
+   ===================================================== */
 
-function loadLevel(index) {
+function loadStage(index) {
 
-    levelIndex =
-        index % levels.length;
+    currentStage =
+        index % stages.length;
 
-    const data =
-        levels[levelIndex];
+    const stage =
+        stages[currentStage];
+
 
     snake =
-        data.snake.map(p => ({
-            x:p.x,
-            y:p.y
-        }));
+        stage.snake.map(function(p) {
+
+            return {
+                x: p.x,
+                y: p.y
+            };
+
+        });
+
 
     goal = {
-        x:data.goal.x,
-        y:data.goal.y
+
+        x: stage.goal.x,
+        y: stage.goal.y
+
     };
 
+
     walls =
-        data.walls.map(p => ({
-            x:p[0],
-            y:p[1]
-        }));
+        stage.walls.map(function(p) {
+
+            return {
+                x: p[0],
+                y: p[1]
+            };
+
+        });
+
 
     moves = 0;
 
-    gameOver = false;
+    finished = false;
 
-    message.style.display =
+
+    level.textContent =
+        currentStage + 1;
+
+    movesElement.textContent =
+        "0";
+
+
+    clearScreen.style.display =
         "none";
 
-    levelText.textContent =
-        levelIndex + 1;
-
-    movesText.textContent =
-        moves;
 
     updateBest();
 
@@ -739,65 +1092,95 @@ function loadLevel(index) {
 }
 
 
-/* ---------- DRAW ---------- */
+/* =====================================================
+   DRAW
+   ===================================================== */
 
 function draw() {
 
     board.innerHTML = "";
 
-    board.style.gridTemplateColumns =
-        `repeat(${SIZE}, 1fr)`;
 
-    board.style.gridTemplateRows =
-        `repeat(${SIZE}, 1fr)`;
+    for (
+        let y = 0;
+        y < SIZE;
+        y++
+    ) {
 
-
-    for (let y = 0; y < SIZE; y++) {
-
-        for (let x = 0; x < SIZE; x++) {
+        for (
+            let x = 0;
+            x < SIZE;
+            x++
+        ) {
 
             const cell =
                 document.createElement("div");
 
-            cell.className = "cell";
+
+            cell.className =
+                "cell";
 
 
-            /* wall */
+            /*
+               壁
+            */
 
-            if (isWall(x,y)) {
+            if (
+                isWall(x,y)
+            ) {
 
-                cell.classList.add("wall");
+                cell.classList.add(
+                    "wall"
+                );
 
             }
 
 
-            /* goal */
+            /*
+               ゴール
+            */
 
             if (
                 goal.x === x &&
                 goal.y === y
             ) {
 
-                cell.classList.add("goal");
+                cell.classList.add(
+                    "goal"
+                );
 
             }
 
 
-            /* snake */
+            /*
+               蛇
+            */
 
             const snakeIndex =
                 snake.findIndex(
-                    p =>
-                        p.x === x &&
-                        p.y === y
+                    function(p) {
+
+                        return (
+                            p.x === x &&
+                            p.y === y
+                        );
+
+                    }
                 );
 
 
-            if (snakeIndex !== -1) {
+            if (
+                snakeIndex !== -1
+            ) {
 
-                cell.classList.add("snake");
+                cell.classList.add(
+                    "snake"
+                );
 
-                if (snakeIndex === 0) {
+
+                if (
+                    snakeIndex === 0
+                ) {
 
                     cell.classList.add(
                         "snake-head"
@@ -817,23 +1200,52 @@ function draw() {
 }
 
 
-/* ---------- MOVE ---------- */
+/* =====================================================
+   WALL
+   ===================================================== */
+
+function isWall(x,y) {
+
+    return walls.some(
+        function(p) {
+
+            return (
+                p.x === x &&
+                p.y === y
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   MOVE
+   ===================================================== */
 
 function move(dx,dy) {
 
-    if (gameOver) {
+    if (finished) {
         return;
     }
 
-    const head = snake[0];
+
+    const head =
+        snake[0];
+
 
     const next = {
+
         x: head.x + dx,
         y: head.y + dy
+
     };
 
 
-    /* outside */
+    /*
+       場外
+    */
 
     if (
         next.x < 0 ||
@@ -842,14 +1254,16 @@ function move(dx,dy) {
         next.y >= SIZE
     ) {
 
-        shake();
+        bump();
 
         return;
 
     }
 
 
-    /* wall */
+    /*
+       壁
+    */
 
     if (
         isWall(
@@ -858,7 +1272,7 @@ function move(dx,dy) {
         )
     ) {
 
-        shake();
+        bump();
 
         return;
 
@@ -866,19 +1280,23 @@ function move(dx,dy) {
 
 
     /*
-        自分の体にぶつかったら
-        動けない
+       自分自身
     */
 
     if (
         snake.some(
-            p =>
-                p.x === next.x &&
-                p.y === next.y
+            function(p) {
+
+                return (
+                    p.x === next.x &&
+                    p.y === next.y
+                );
+
+            }
         )
     ) {
 
-        shake();
+        bump();
 
         return;
 
@@ -886,138 +1304,145 @@ function move(dx,dy) {
 
 
     /*
-        頭を先頭に追加
+       移動
     */
 
     snake.unshift(next);
 
-    /*
-        Puzzle Snakeなので
-        尻尾を残すことで
-        体が1マスずつ伸びる
-    */
-
     moves++;
 
-    movesText.textContent =
-        moves;
-
-
     /*
-        一定長以上になったら
-        尻尾を削除して
-        パズルとして動かす
+       4マスを維持
     */
 
-    if (snake.length > 4) {
+    while (
+        snake.length > 4
+    ) {
 
         snake.pop();
 
     }
 
 
+    movesElement.textContent =
+        moves;
+
+
     draw();
 
 
-    /* goal */
+    /*
+       ゴール
+    */
 
     if (
         next.x === goal.x &&
         next.y === goal.y
     ) {
 
-        clear();
+        clearStage();
 
     }
 
 }
 
 
-/* ---------- WALL CHECK ---------- */
+/* =====================================================
+   BUMP
+   ===================================================== */
 
-function isWall(x,y) {
+function bump() {
 
-    return walls.some(
-        p =>
-            p.x === x &&
-            p.y === y
+    board.animate(
+        [
+            {
+                transform:
+                    "translateX(-5px)"
+            },
+            {
+                transform:
+                    "translateX(5px)"
+            },
+            {
+                transform:
+                    "translateX(-3px)"
+            },
+            {
+                transform:
+                    "translateX(0)"
+            }
+        ],
+        {
+            duration: 130
+        }
     );
 
 }
 
 
-/* ---------- CLEAR ---------- */
+/* =====================================================
+   CLEAR
+   ===================================================== */
 
-function clear() {
+function clearStage() {
 
-    gameOver = true;
+    finished = true;
 
     clearMoves.textContent =
         moves;
 
+
     saveBest();
 
-    setTimeout(() => {
 
-        message.style.display =
-            "flex";
+    setTimeout(
+        function() {
 
-    }, 180);
+            clearScreen.style.display =
+                "flex";
 
-}
-
-
-/* ---------- RESTART ---------- */
-
-function restart() {
-
-    loadLevel(levelIndex);
-
-}
-
-
-/* ---------- NEXT ---------- */
-
-function newGame() {
-
-    loadLevel(
-        levelIndex + 1
+        },
+        150
     );
 
 }
 
 
-/* ---------- SHAKE ---------- */
+/* =====================================================
+   RESTART
+   ===================================================== */
 
-function shake() {
+function restart() {
 
-    board.style.transform =
-        "translateX(-5px)";
-
-    setTimeout(() => {
-
-        board.style.transform =
-            "translateX(5px)";
-
-    }, 50);
-
-    setTimeout(() => {
-
-        board.style.transform =
-            "translateX(0)";
-
-    }, 100);
+    loadStage(
+        currentStage
+    );
 
 }
 
 
-/* ---------- BEST SCORE ---------- */
+/* =====================================================
+   NEXT
+   ===================================================== */
+
+function nextStage() {
+
+    loadStage(
+        currentStage + 1
+    );
+
+}
+
+
+/* =====================================================
+   BEST
+   ===================================================== */
 
 function bestKey() {
 
     return (
-        "snakePuzzleBest_" +
-        levelIndex
+        "snake_puzzle_best_" +
+        currentStage
     );
 
 }
@@ -1025,13 +1450,14 @@ function bestKey() {
 
 function updateBest() {
 
-    const best =
+    const value =
         localStorage.getItem(
             bestKey()
         );
 
-    bestText.textContent =
-        best || "—";
+
+    best.textContent =
+        value || "—";
 
 }
 
@@ -1042,6 +1468,7 @@ function saveBest() {
         localStorage.getItem(
             bestKey()
         );
+
 
     if (
         !old ||
@@ -1055,56 +1482,147 @@ function saveBest() {
 
     }
 
+
     updateBest();
 
 }
 
 
-/* =========================================================
+/* =====================================================
+   BUTTON
+   ===================================================== */
+
+function button(id, action) {
+
+    const element =
+        document.getElementById(id);
+
+
+    element.addEventListener(
+        "pointerdown",
+        function(e) {
+
+            e.preventDefault();
+
+            action();
+
+        },
+        {
+            passive: false
+        }
+    );
+
+}
+
+
+/* =====================================================
+   CONTROLS
+   ===================================================== */
+
+button(
+    "up",
+    function() {
+        move(0,-1);
+    }
+);
+
+button(
+    "down",
+    function() {
+        move(0,1);
+    }
+);
+
+button(
+    "left",
+    function() {
+        move(-1,0);
+    }
+);
+
+button(
+    "right",
+    function() {
+        move(1,0);
+    }
+);
+
+button(
+    "restart",
+    restart
+);
+
+button(
+    "next",
+    nextStage
+);
+
+button(
+    "nextLevel",
+    nextStage
+);
+
+
+/* =====================================================
    KEYBOARD
-   ========================================================= */
+   ===================================================== */
 
 document.addEventListener(
     "keydown",
-    e => {
+    function(e) {
 
         if (
             e.key === "ArrowUp" ||
             e.key === "w"
         ) {
 
+            e.preventDefault();
+
             move(0,-1);
 
         }
+
 
         if (
             e.key === "ArrowDown" ||
             e.key === "s"
         ) {
 
+            e.preventDefault();
+
             move(0,1);
 
         }
+
 
         if (
             e.key === "ArrowLeft" ||
             e.key === "a"
         ) {
 
+            e.preventDefault();
+
             move(-1,0);
 
         }
+
 
         if (
             e.key === "ArrowRight" ||
             e.key === "d"
         ) {
 
+            e.preventDefault();
+
             move(1,0);
 
         }
 
-        if (e.key === "r") {
+
+        if (
+            e.key === "r" ||
+            e.key === "R"
+        ) {
 
             restart();
 
@@ -1114,56 +1632,101 @@ document.addEventListener(
 );
 
 
-/* =========================================================
+/* =====================================================
    SWIPE
-   ========================================================= */
+   ===================================================== */
 
-let touchStartX = 0;
-let touchStartY = 0;
+let startX = 0;
+let startY = 0;
+
+let touching = false;
 
 
 board.addEventListener(
     "touchstart",
-    e => {
+    function(e) {
 
-        const t =
+        e.preventDefault();
+
+        if (!e.changedTouches.length) {
+            return;
+        }
+
+
+        const touch =
             e.changedTouches[0];
 
-        touchStartX =
-            t.clientX;
 
-        touchStartY =
-            t.clientY;
+        startX =
+            touch.clientX;
+
+        startY =
+            touch.clientY;
+
+        touching = true;
 
     },
-    {passive:true}
+    {
+        passive: false
+    }
+);
+
+
+board.addEventListener(
+    "touchmove",
+    function(e) {
+
+        e.preventDefault();
+
+    },
+    {
+        passive: false
+    }
 );
 
 
 board.addEventListener(
     "touchend",
-    e => {
+    function(e) {
 
-        const t =
+        e.preventDefault();
+
+
+        if (!touching) {
+            return;
+        }
+
+
+        touching = false;
+
+
+        if (!e.changedTouches.length) {
+            return;
+        }
+
+
+        const touch =
             e.changedTouches[0];
 
+
         const dx =
-            t.clientX -
-            touchStartX;
+            touch.clientX -
+            startX;
+
 
         const dy =
-            t.clientY -
-            touchStartY;
+            touch.clientY -
+            startY;
 
 
-        const minSwipe = 25;
+        const threshold = 25;
 
 
         if (
             Math.abs(dx) <
-                minSwipe &&
+                threshold &&
             Math.abs(dy) <
-                minSwipe
+                threshold
         ) {
 
             return;
@@ -1201,15 +1764,20 @@ board.addEventListener(
         }
 
     },
-    {passive:true}
+    {
+        passive: false
+    }
 );
 
 
-/* ---------- START ---------- */
+/* =====================================================
+   START
+   ===================================================== */
 
-loadLevel(0);
+loadStage(0);
 
 </script>
 
 </body>
+
 </html>
